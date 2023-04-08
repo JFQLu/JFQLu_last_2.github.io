@@ -2,9 +2,9 @@ vCard - Personal Portfolio
 
 # sidebar
 
-alt = Richard hanrick
-Richard hanrick
-Web developer
+alt = James Lu
+James Lu
+Data Consultant
 
 Show Contacts
 
