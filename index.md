@@ -9,16 +9,13 @@ Web developer
 Show Contacts
 
 Email
-richard@example.com
+jamesfqlu@gmail.com
 
 Phone
-+1 (213) 352-2795
-
-Birthday
-June 23, 1982
++61 413 472 321
 
 Location
-Sacramento, California, USA
+Sydney, NSW, Australia
 
 # navbar
 
