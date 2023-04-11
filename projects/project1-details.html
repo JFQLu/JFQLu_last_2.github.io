@@ -92,6 +92,7 @@
           <li>There was high correlation between corresponding in and out flows of each port</li>
           <li>There were distinct characteristics to each flow type (this is what we want for accurate classification)</li>
           </ul>
+          <br>
           <h3 id="feature-engineering">Feature Engineering</h3>
           <p>Our solution begins with the feature extraction step. This involved transforming raw training and testing data (provided by CyAmast) into training and testing feature datasets for subsequence sizes of 16, 32, 64, and 128. Note, we define a subsequence as a sequence of contiguous data from the original dataset which is transformed into a single instance in the feature datasets. The feature dataset contains 8 features for each labelled flow subsequence: average packet and byte counts for 1-, 2-, 4-, and 8-minute time frames. Furthermore, all observations which have only 0s in their 8 features were dropped from the dataset. </p>
           <p>A key function used in this process was the smoothen() function which allowed us to create higher time-frame data for extracting features:</p>
@@ -110,7 +111,7 @@
               return temp
             ```
           </md-block>
-          
+          <br>
           <h3 id="model-training">Model Training</h3>
           <p>For this project we wanted to compare the effectiveness and logistics of both single-class and multi-class machine learning models in classifying network flows. For this reason we tackled this probelm with both single- and multi-class models. </p>
           <table>
