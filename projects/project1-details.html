@@ -95,17 +95,22 @@
           <h3 id="feature-engineering">Feature Engineering</h3>
           <p>Our solution begins with the feature extraction step. This involved transforming raw training and testing data (provided by CyAmast) into training and testing feature datasets for subsequence sizes of 16, 32, 64, and 128. Note, we define a subsequence as a sequence of contiguous data from the original dataset which is transformed into a single instance in the feature datasets. The feature dataset contains 8 features for each labelled flow subsequence: average packet and byte counts for 1-, 2-, 4-, and 8-minute time frames. Furthermore, all observations which have only 0s in their 8 features were dropped from the dataset. </p>
           <p>A key function used in this process was the smoothen() function which allowed us to create higher time-frame data for extracting features:</p>
-          <pre><code class="lang-python">def smoothen(data,<span class="hljs-attr">subsequence_length</span> = <span class="hljs-number">16</span>, <span class="hljs-attr">n=2):</span>
-              <span class="hljs-keyword">if</span> len(data.shape) != <span class="hljs-number">3</span>:
-                print(<span class="hljs-string">"Subsequence is of wrong shape for our purposes, should be 3 dimensional 
-                      --&gt; (n_observations, subsequence size, n_original_features)."</span>) 
+          
+          <md-block>
+            ```python
+            def smoothen(data,subsequence_length = 16, n=2):
+              if len(data.shape) != 3:
+                print("Subsequence is of wrong shape for our purposes, should be 3 dimensional 
+                      --> (n_observations, subsequence size, n_original_features).") 
 
-              <span class="hljs-comment"># Makes an instance of a flow more coarse by n times.</span>
-              <span class="hljs-comment">#print(f"length of flow instance:{len(subsequence)}")</span>
-              <span class="hljs-attr">temp</span> = np.split(data, subsequence_length/n,<span class="hljs-attr">axis=1)</span>
-              <span class="hljs-attr">temp</span> = np.array(temp).sum(<span class="hljs-attr">axis=-2)</span>
+              # Makes an instance of a flow more coarse by n times.
+              #print(f"length of flow instance:{len(subsequence)}")
+              temp = np.split(data, subsequence_length/n,axis=1)
+              temp = np.array(temp).sum(axis=-2)
               return temp
-          </code></pre>
+            ```
+          </md-block>
+          
           <h3 id="model-training">Model Training</h3>
           <p>For this project we wanted to compare the effectiveness and logistics of both single-class and multi-class machine learning models in classifying network flows. For this reason we tackled this probelm with both single- and multi-class models. </p>
           <table>
