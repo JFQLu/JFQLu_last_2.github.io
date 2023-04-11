@@ -75,187 +75,187 @@
         
         <section class="about-text">
           <h2 id="network-anomaly-detection">Network Anomaly Detection</h2>
-<h5 id="project-collaborators-andrew-william-dan-visitchaichan-daniel-dinh-michael-li-">Project Collaborators: <em>Andrew William, Dan Visitchaichan, Daniel Dinh, Michael Li</em></h5>
-<h3 id="project-details">Project Details</h3>
-<p>This project involved collaborative work with 4 other data scientists over 10 weeks where we defined the problem, explored and transformed our data, researched solutions, implemented machine learning models to solve the probelm outlined and presented our deliverables to coordinators and other data science peers. The raw data was provided by CyAmast. There are many parts of this project which I have chosen to exclude from this blog due to length, however, I hope this will capture the key features of the project. </p>
-<h3 id="background">Background</h3>
-<p>The Internet of Things (IoT) is a technology that connects various devices, machines, and systems to a single network. It is widely used in many industries because it allows for efficient data gathering. However, these devices often have limited functions and are vulnerable to cyber attacks such as DDoS and MITM, making it important to have protection measures in place, such as network anomaly detection.</p>
-<h3 id="data">Data</h3>
-<p>The data provided contained time series network data including packet/byte counts in/out of a number of ports of a number of devices. Below is a snapshot:</p>
-<pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">data</span>.info()</span>
-</code></pre>
-<p><img src="https://user-images.githubusercontent.com/98208084/209839388-429df3b8-320f-4a0d-8de2-08be9d56f2d2.png" alt="image"></p>
-<p><strong>Here we hypothesise if we are able to classify a new datapoint into a particular flow we are able to observe when an anomaly occurs</strong></p>
-<h3 id="exploratory-data-analysis">Exploratory Data Analysis</h3>
-<p>Our team began by analysing and understanding the provided data. Python was used to calculate statistics and Matplotlib and seaborn packages were utilised to visualise the shape and trends of the time series data. Key observations include: </p>
-<ul>
-<li>There was high correlation between corresponding in and out flows of each port</li>
-<li>There were distinct characteristics to each flow type (this is what we want for accurate classification)</li>
-</ul>
-<h3 id="feature-engineering">Feature Engineering</h3>
-<p>Our solution begins with the feature extraction step. This involved transforming raw training and testing data (provided by CyAmast) into training and testing feature datasets for subsequence sizes of 16, 32, 64, and 128. Note, we define a subsequence as a sequence of contiguous data from the original dataset which is transformed into a single instance in the feature datasets. The feature dataset contains 8 features for each labelled flow subsequence: average packet and byte counts for 1-, 2-, 4-, and 8-minute time frames. Furthermore, all observations which have only 0s in their 8 features were dropped from the dataset. </p>
-<p>A key function used in this process was the smoothen() function which allowed us to create higher time-frame data for extracting features:</p>
-<pre><code class="lang-python">def smoothen(data,<span class="hljs-attr">subsequence_length</span> = <span class="hljs-number">16</span>, <span class="hljs-attr">n=2):</span>
-    <span class="hljs-keyword">if</span> len(data.shape) != <span class="hljs-number">3</span>:
-      print(<span class="hljs-string">"Subsequence is of wrong shape for our purposes, should be 3 dimensional 
-            --&gt; (n_observations, subsequence size, n_original_features)."</span>) 
+          <h5 id="project-collaborators-andrew-william-dan-visitchaichan-daniel-dinh-michael-li-">Project Collaborators: <em>Andrew William, Dan Visitchaichan, Daniel Dinh, Michael Li</em></h5>
+          <h3 id="project-details">Project Details</h3>
+          <p>This project involved collaborative work with 4 other data scientists over 10 weeks where we defined the problem, explored and transformed our data, researched solutions, implemented machine learning models to solve the probelm outlined and presented our deliverables to coordinators and other data science peers. The raw data was provided by CyAmast. There are many parts of this project which I have chosen to exclude from this blog due to length, however, I hope this will capture the key features of the project. </p>
+          <h3 id="background">Background</h3>
+          <p>The Internet of Things (IoT) is a technology that connects various devices, machines, and systems to a single network. It is widely used in many industries because it allows for efficient data gathering. However, these devices often have limited functions and are vulnerable to cyber attacks such as DDoS and MITM, making it important to have protection measures in place, such as network anomaly detection.</p>
+          <h3 id="data">Data</h3>
+          <p>The data provided contained time series network data including packet/byte counts in/out of a number of ports of a number of devices. Below is a snapshot:</p>
+          <pre><code class="lang-python"><span class="hljs-class"><span class="hljs-keyword">data</span>.info()</span>
+          </code></pre>
+          <p><img src="https://user-images.githubusercontent.com/98208084/209839388-429df3b8-320f-4a0d-8de2-08be9d56f2d2.png" alt="image"></p>
+          <p><strong>Here we hypothesise if we are able to classify a new datapoint into a particular flow we are able to observe when an anomaly occurs</strong></p>
+          <h3 id="exploratory-data-analysis">Exploratory Data Analysis</h3>
+          <p>Our team began by analysing and understanding the provided data. Python was used to calculate statistics and Matplotlib and seaborn packages were utilised to visualise the shape and trends of the time series data. Key observations include: </p>
+          <ul>
+          <li>There was high correlation between corresponding in and out flows of each port</li>
+          <li>There were distinct characteristics to each flow type (this is what we want for accurate classification)</li>
+          </ul>
+          <h3 id="feature-engineering">Feature Engineering</h3>
+          <p>Our solution begins with the feature extraction step. This involved transforming raw training and testing data (provided by CyAmast) into training and testing feature datasets for subsequence sizes of 16, 32, 64, and 128. Note, we define a subsequence as a sequence of contiguous data from the original dataset which is transformed into a single instance in the feature datasets. The feature dataset contains 8 features for each labelled flow subsequence: average packet and byte counts for 1-, 2-, 4-, and 8-minute time frames. Furthermore, all observations which have only 0s in their 8 features were dropped from the dataset. </p>
+          <p>A key function used in this process was the smoothen() function which allowed us to create higher time-frame data for extracting features:</p>
+          <pre><code class="lang-python">def smoothen(data,<span class="hljs-attr">subsequence_length</span> = <span class="hljs-number">16</span>, <span class="hljs-attr">n=2):</span>
+              <span class="hljs-keyword">if</span> len(data.shape) != <span class="hljs-number">3</span>:
+                print(<span class="hljs-string">"Subsequence is of wrong shape for our purposes, should be 3 dimensional 
+                      --&gt; (n_observations, subsequence size, n_original_features)."</span>) 
 
-    <span class="hljs-comment"># Makes an instance of a flow more coarse by n times.</span>
-    <span class="hljs-comment">#print(f"length of flow instance:{len(subsequence)}")</span>
-    <span class="hljs-attr">temp</span> = np.split(data, subsequence_length/n,<span class="hljs-attr">axis=1)</span>
-    <span class="hljs-attr">temp</span> = np.array(temp).sum(<span class="hljs-attr">axis=-2)</span>
-    return temp
-</code></pre>
-<h3 id="model-training">Model Training</h3>
-<p>For this project we wanted to compare the effectiveness and logistics of both single-class and multi-class machine learning models in classifying network flows. For this reason we tackled this probelm with both single- and multi-class models. </p>
-<table>
-<thead>
-<tr>
-<th>Single-class</th>
-<th>multi-class</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GMM, K-Means, Fuzzy C-Means</td>
-<td>Random Forest, XGBoost, AdaBoost, SVM, MLP, Logistic Regression</td>
-</tr>
-</tbody>
-</table>
-<p>This blog will deep dive into the one-class Gaussian Mxture Model and the multi-class Random Forest models.</p>
-<h3 id="guassian-mixture-model-deep-dive">Guassian Mixture Model - Deep Dive</h3>
-<p>A Gaussian mixture model (GMM) is a unsupervised probabilistic model that assumes that the data is generated from a mixture of several different Gaussian distributions. It is often used for classification tasks because it allows for the modeling of complex, multimodal distributions and can handle data with uncertainty or incomplete information.</p>
-<p>In a GMM, each data point is assumed to belong to one of the Gaussian distributions in the mixture, and the model estimates the probability that a given data point belongs to each of the different distributions. The model can then classify a new data point based on which distribution it is most likely to belong to.</p>
-<p>Once the GMM has been trained, it can be used to classify new data points by determining the distribution that they are most likely to belong to.</p>
-<h4 id="preprocessing">Preprocessing</h4>
-<p>First any preprocessing is done including Z-score scaling and/or PCA; note that we perform experiments to determine if scaling or PCA improves model perforance.</p>
-<h4 id="compute-optimal-cluster-number">Compute Optimal Cluster Number</h4>
-<p>The elbow method is a technique that is often used to determine the optimal number of clusters to use in a clustering algorithm such as a Gaussian mixture model (GMM). It is based on the idea that the optimal number of clusters is the point at which the decrease in the sum of squared distances between the points and their closest cluster centers starts to level off. </p>
-<pre><code class="lang-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute_optimal_clusters</span><span class="hljs-params">(train,n_clusters,random_state)</span>:</span>
-    print(<span class="hljs-string">"Calculating optimal number of clusters from elbow method"</span>)
-    km = KMeans(random_state=random_state)
-    visualizer = KElbowVisualizer(km, k=n_clusters,show=<span class="hljs-keyword">False</span>)
-    t1 = time.perf_counter()
-    visualizer.fit(train)
-    t2 = time.perf_counter()       
-    optimal_k = visualizer.elbow_value_
+              <span class="hljs-comment"># Makes an instance of a flow more coarse by n times.</span>
+              <span class="hljs-comment">#print(f"length of flow instance:{len(subsequence)}")</span>
+              <span class="hljs-attr">temp</span> = np.split(data, subsequence_length/n,<span class="hljs-attr">axis=1)</span>
+              <span class="hljs-attr">temp</span> = np.array(temp).sum(<span class="hljs-attr">axis=-2)</span>
+              return temp
+          </code></pre>
+          <h3 id="model-training">Model Training</h3>
+          <p>For this project we wanted to compare the effectiveness and logistics of both single-class and multi-class machine learning models in classifying network flows. For this reason we tackled this probelm with both single- and multi-class models. </p>
+          <table>
+          <thead>
+          <tr>
+          <th>Single-class</th>
+          <th>multi-class</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+          <td>GMM, K-Means, Fuzzy C-Means</td>
+          <td>Random Forest, XGBoost, AdaBoost, SVM, MLP, Logistic Regression</td>
+          </tr>
+          </tbody>
+          </table>
+          <p>This blog will deep dive into the one-class Gaussian Mxture Model and the multi-class Random Forest models.</p>
+          <h3 id="guassian-mixture-model-deep-dive">Guassian Mixture Model - Deep Dive</h3>
+          <p>A Gaussian mixture model (GMM) is a unsupervised probabilistic model that assumes that the data is generated from a mixture of several different Gaussian distributions. It is often used for classification tasks because it allows for the modeling of complex, multimodal distributions and can handle data with uncertainty or incomplete information.</p>
+          <p>In a GMM, each data point is assumed to belong to one of the Gaussian distributions in the mixture, and the model estimates the probability that a given data point belongs to each of the different distributions. The model can then classify a new data point based on which distribution it is most likely to belong to.</p>
+          <p>Once the GMM has been trained, it can be used to classify new data points by determining the distribution that they are most likely to belong to.</p>
+          <h4 id="preprocessing">Preprocessing</h4>
+          <p>First any preprocessing is done including Z-score scaling and/or PCA; note that we perform experiments to determine if scaling or PCA improves model perforance.</p>
+          <h4 id="compute-optimal-cluster-number">Compute Optimal Cluster Number</h4>
+          <p>The elbow method is a technique that is often used to determine the optimal number of clusters to use in a clustering algorithm such as a Gaussian mixture model (GMM). It is based on the idea that the optimal number of clusters is the point at which the decrease in the sum of squared distances between the points and their closest cluster centers starts to level off. </p>
+          <pre><code class="lang-python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">compute_optimal_clusters</span><span class="hljs-params">(train,n_clusters,random_state)</span>:</span>
+              print(<span class="hljs-string">"Calculating optimal number of clusters from elbow method"</span>)
+              km = KMeans(random_state=random_state)
+              visualizer = KElbowVisualizer(km, k=n_clusters,show=<span class="hljs-keyword">False</span>)
+              t1 = time.perf_counter()
+              visualizer.fit(train)
+              t2 = time.perf_counter()       
+              optimal_k = visualizer.elbow_value_
 
 
-    <span class="hljs-keyword">if</span> optimal_k <span class="hljs-keyword">is</span> <span class="hljs-keyword">None</span>:
-    optimal_k = <span class="hljs-number">1</span>
+              <span class="hljs-keyword">if</span> optimal_k <span class="hljs-keyword">is</span> <span class="hljs-keyword">None</span>:
+              optimal_k = <span class="hljs-number">1</span>
 
-    print(f<span class="hljs-string">"Optimal number of clusters:{optimal_k}"</span>)
-    optimal_k_time = t2-t1
-    print(<span class="hljs-string">'Time taken to find optimal clusters:'</span>,optimal_k_time,<span class="hljs-string">'s'</span>)
+              print(f<span class="hljs-string">"Optimal number of clusters:{optimal_k}"</span>)
+              optimal_k_time = t2-t1
+              print(<span class="hljs-string">'Time taken to find optimal clusters:'</span>,optimal_k_time,<span class="hljs-string">'s'</span>)
 
-    <span class="hljs-keyword">return</span> optimal_k,optimal_k_time
-</code></pre>
-<p>The above function returns us the optimal number of clusters <em>optimal_k</em>.</p>
-<h4 id="training">Training</h4>
-<pre><code class="lang-python"><span class="hljs-comment"># Training a GMM using optimal number of clusters</span>
-gmm, <span class="hljs-attr">training_time=</span> fit_gmm(train,optimal_k,<span class="hljs-attr">random_state</span> = random_state,<span class="hljs-attr">flow_type</span> = flow_type)
-</code></pre>
-<p>The model is trained using sklearn&#39;s implementation of GMM. This model is then stored for testing. </p>
-<h4 id="testing">Testing</h4>
-<p>Testing the GMM follows the following algorithm: </p>
-<p><strong>Input:</strong>
-Test feature data of same subsequence size as training feature data</p>
-<p>Set of trained GMM classification models</p>
-<p>Z-score scaler if <em>scale = True</em></p>
-<p>PCA scaler if <em>PCA = True</em></p>
-<p><strong>Output:</strong></p>
-<p>Network flow predictions on test feature data</p>
-<p><strong>for</strong> each network flow <strong>do</strong></p>
-<blockquote>
-<p>(1) <strong>if</strong> <em>scale = True</em> <strong>then</strong></p>
-<blockquote>
-<p>Scale each feature from test data using z-score scalar from training data; </p>
-</blockquote>
-<p>(2) <strong>if</strong> <em>PCA = True</em> <strong>then</strong></p>
-<blockquote>
-<p>Obtain principal components using PCA scalar on features and reduce dimensions using minimal principal components;</p>
-</blockquote>
-<p>(3) Predict closest cluster to step 1 and 2 result, using all cluster models; </p>
-<p>(4) Record distance between all closest clusters and step 1 and 2 result; </p>
-</blockquote>
-<p><strong>end</strong></p>
-<p>(5) For each test data point, select cluster model with minimum distance predicted as winner model; </p>
-<p>(6) Use winner model&#39;s flow as predictions;</p>
-<p>For single-class clasifiers like GMM we need to produce a model for each class. Predicting with single-class models such as GMM is more complicated then multi-class models due to the need for conflict resolution when the probablity measures are the same for more than one class (network flow). </p>
-<h3 id="random-forest-deep-dive">Random Forest - Deep Dive</h3>
-<p>Random Forest (RF) is a supervised machine learning algorithm for classification and regression. It is an ensemble method meaning it combines the predictions of multiple decision trees trained on different subsets of the data, and makes a final prediction by taking the mode or mean of the individual predictions. It is effective at handling high-dimensional and sparse data, and is resistant to overfitting. It is also relatively easy to implement and interpret.</p>
-<h4 id="preprocessing">Preprocessing</h4>
-<p>Since RF is a supervised ML model we need to create labels in our feature data. This can be done by applying the following function to the data.</p>
-<pre><code class="lang-python">def convert_one_class_to_multi_class(df):
-    '''
-    This function will convert <span class="hljs-keyword">the</span> feature_subsequence dataset <span class="hljs-keyword">to</span> make <span class="hljs-keyword">it</span> suitable <span class="hljs-keyword">for</span> multi-<span class="hljs-built_in">class</span>.
-    Note <span class="hljs-keyword">that</span> columns <span class="hljs-keyword">that</span> are <span class="hljs-keyword">not</span> relevant <span class="hljs-keyword">to</span> features (such <span class="hljs-keyword">as</span> <span class="hljs-built_in">time</span>/device_mac) will be removed.
+              <span class="hljs-keyword">return</span> optimal_k,optimal_k_time
+          </code></pre>
+          <p>The above function returns us the optimal number of clusters <em>optimal_k</em>.</p>
+          <h4 id="training">Training</h4>
+          <pre><code class="lang-python"><span class="hljs-comment"># Training a GMM using optimal number of clusters</span>
+          gmm, <span class="hljs-attr">training_time=</span> fit_gmm(train,optimal_k,<span class="hljs-attr">random_state</span> = random_state,<span class="hljs-attr">flow_type</span> = flow_type)
+          </code></pre>
+          <p>The model is trained using sklearn&#39;s implementation of GMM. This model is then stored for testing. </p>
+          <h4 id="testing">Testing</h4>
+          <p>Testing the GMM follows the following algorithm: </p>
+          <p><strong>Input:</strong>
+          Test feature data of same subsequence size as training feature data</p>
+          <p>Set of trained GMM classification models</p>
+          <p>Z-score scaler if <em>scale = True</em></p>
+          <p>PCA scaler if <em>PCA = True</em></p>
+          <p><strong>Output:</strong></p>
+          <p>Network flow predictions on test feature data</p>
+          <p><strong>for</strong> each network flow <strong>do</strong></p>
+          <blockquote>
+          <p>(1) <strong>if</strong> <em>scale = True</em> <strong>then</strong></p>
+          <blockquote>
+          <p>Scale each feature from test data using z-score scalar from training data; </p>
+          </blockquote>
+          <p>(2) <strong>if</strong> <em>PCA = True</em> <strong>then</strong></p>
+          <blockquote>
+          <p>Obtain principal components using PCA scalar on features and reduce dimensions using minimal principal components;</p>
+          </blockquote>
+          <p>(3) Predict closest cluster to step 1 and 2 result, using all cluster models; </p>
+          <p>(4) Record distance between all closest clusters and step 1 and 2 result; </p>
+          </blockquote>
+          <p><strong>end</strong></p>
+          <p>(5) For each test data point, select cluster model with minimum distance predicted as winner model; </p>
+          <p>(6) Use winner model&#39;s flow as predictions;</p>
+          <p>For single-class clasifiers like GMM we need to produce a model for each class. Predicting with single-class models such as GMM is more complicated then multi-class models due to the need for conflict resolution when the probablity measures are the same for more than one class (network flow). </p>
+          <h3 id="random-forest-deep-dive">Random Forest - Deep Dive</h3>
+          <p>Random Forest (RF) is a supervised machine learning algorithm for classification and regression. It is an ensemble method meaning it combines the predictions of multiple decision trees trained on different subsets of the data, and makes a final prediction by taking the mode or mean of the individual predictions. It is effective at handling high-dimensional and sparse data, and is resistant to overfitting. It is also relatively easy to implement and interpret.</p>
+          <h4 id="preprocessing">Preprocessing</h4>
+          <p>Since RF is a supervised ML model we need to create labels in our feature data. This can be done by applying the following function to the data.</p>
+          <pre><code class="lang-python">def convert_one_class_to_multi_class(df):
+              '''
+              This function will convert <span class="hljs-keyword">the</span> feature_subsequence dataset <span class="hljs-keyword">to</span> make <span class="hljs-keyword">it</span> suitable <span class="hljs-keyword">for</span> multi-<span class="hljs-built_in">class</span>.
+              Note <span class="hljs-keyword">that</span> columns <span class="hljs-keyword">that</span> are <span class="hljs-keyword">not</span> relevant <span class="hljs-keyword">to</span> features (such <span class="hljs-keyword">as</span> <span class="hljs-built_in">time</span>/device_mac) will be removed.
 
-    It will change <span class="hljs-keyword">the</span> shape <span class="hljs-keyword">of</span> <span class="hljs-keyword">the</span> dataset <span class="hljs-keyword">from</span> <span class="hljs-string">"wide"</span> <span class="hljs-keyword">to</span> <span class="hljs-string">"long"</span>, <span class="hljs-keyword">with</span> <span class="hljs-keyword">the</span> flow types assigned <span class="hljs-keyword">as</span> a separate new column.
+              It will change <span class="hljs-keyword">the</span> shape <span class="hljs-keyword">of</span> <span class="hljs-keyword">the</span> dataset <span class="hljs-keyword">from</span> <span class="hljs-string">"wide"</span> <span class="hljs-keyword">to</span> <span class="hljs-string">"long"</span>, <span class="hljs-keyword">with</span> <span class="hljs-keyword">the</span> flow types assigned <span class="hljs-keyword">as</span> a separate new column.
 
-    NOTE: The input MUST be dataframe <span class="hljs-keyword">of</span> features computed <span class="hljs-keyword">from</span> subsequences.
-    '''
+              NOTE: The input MUST be dataframe <span class="hljs-keyword">of</span> features computed <span class="hljs-keyword">from</span> subsequences.
+              '''
 
-    <span class="hljs-comment"># Extract relevant column flow names, and feature names from the column names</span>
-    <span class="hljs-keyword">if</span> '<span class="hljs-built_in">time</span>' <span class="hljs-keyword">in</span> df.columns:
-    df = df.drop(['<span class="hljs-built_in">time</span>'],axis=<span class="hljs-number">1</span>)
+              <span class="hljs-comment"># Extract relevant column flow names, and feature names from the column names</span>
+              <span class="hljs-keyword">if</span> '<span class="hljs-built_in">time</span>' <span class="hljs-keyword">in</span> df.columns:
+              df = df.drop(['<span class="hljs-built_in">time</span>'],axis=<span class="hljs-number">1</span>)
 
-    <span class="hljs-keyword">if</span> 'device_mac' <span class="hljs-keyword">in</span> df.columns:
-    df = df.drop(['device_mac'],axis=<span class="hljs-number">1</span>)
-    cols = [c <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> df.columns]
-    flows = [extract_flow_from_column(c) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> cols]
-    features = [extract_feature_from_column(c) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> cols]
+              <span class="hljs-keyword">if</span> 'device_mac' <span class="hljs-keyword">in</span> df.columns:
+              df = df.drop(['device_mac'],axis=<span class="hljs-number">1</span>)
+              cols = [c <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> df.columns]
+              flows = [extract_flow_from_column(c) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> cols]
+              features = [extract_feature_from_column(c) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> cols]
 
-    <span class="hljs-comment"># Create a multi-level column with the extracted names</span>
-    new_columns = <span class="hljs-built_in">list</span>(zip(flows,features,cols))
-    df.columns=pd.MultiIndex.from_tuples(new_columns)
+              <span class="hljs-comment"># Create a multi-level column with the extracted names</span>
+              new_columns = <span class="hljs-built_in">list</span>(zip(flows,features,cols))
+              df.columns=pd.MultiIndex.from_tuples(new_columns)
 
-    <span class="hljs-comment"># Stack the dataframe -</span>
-    <span class="hljs-comment"># This will place the columns at the flow level, and original level into the rows. The end result will be our feature names will be the remaining columns</span>
-    df = df.stack(level= [<span class="hljs-number">0</span>,<span class="hljs-number">2</span>])
-    <span class="hljs-comment"># Condense the stacked dataframe by summing -</span>
-    <span class="hljs-comment"># After stacking, there will be a lot of null values for observations that didn't exist. </span>
-    <span class="hljs-comment"># We can get rid of these observations using a group by and sum, since the nulls will be treated as 0 in a sum operation.</span>
-    df = df.groupby(level = [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>]).sum()
+              <span class="hljs-comment"># Stack the dataframe -</span>
+              <span class="hljs-comment"># This will place the columns at the flow level, and original level into the rows. The end result will be our feature names will be the remaining columns</span>
+              df = df.stack(level= [<span class="hljs-number">0</span>,<span class="hljs-number">2</span>])
+              <span class="hljs-comment"># Condense the stacked dataframe by summing -</span>
+              <span class="hljs-comment"># After stacking, there will be a lot of null values for observations that didn't exist. </span>
+              <span class="hljs-comment"># We can get rid of these observations using a group by and sum, since the nulls will be treated as 0 in a sum operation.</span>
+              df = df.groupby(level = [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>]).sum()
 
-    <span class="hljs-comment"># Finally, reset index and rename accordingly</span>
-    df = df.reset_index().drop('level_0',axis=<span class="hljs-number">1</span>).rename({'level_1':'FlowType'},axis=<span class="hljs-number">1</span>)
-<span class="hljs-built_in">
-    return</span> df
-</code></pre>
-<h3 id="training">Training</h3>
-<p>Once we have labelled data we can simply train the RF model using sklearn&#39;s implementation. </p>
-<pre><code class="lang-python"><span class="hljs-attr">rf</span> = RandomForestClassifier(<span class="hljs-attr">n_estimators=n_trees,</span> <span class="hljs-attr">random_state=random_state).fit(X_train,y_train)</span>
-</code></pre>
-<h3 id="testing">Testing</h3>
-<p>Unlike GMM, only one model needs to be trained to classify all classes, no conflict resolution is required either. We only need one line to predict the class of any segment of network flow.</p>
-<pre><code class="lang-python"><span class="hljs-attr">y_pred</span> = model.predict(X_test)
-</code></pre>
-<h3 id="experiment-layer-1-results">Experiment Layer 1 Results</h3>
-<p>Best experiment results for each one-class model for layer 1
-<img src="https://user-images.githubusercontent.com/98208084/209847168-c7621fd3-1a31-4775-931c-2494d184905d.png" alt="image"></p>
-<p>Best experiment results for each multi-class model for layer 1
-<img src="https://user-images.githubusercontent.com/98208084/209847202-760f6db3-8842-40ef-af26-1c087d29bf66.png" alt="image"></p>
-<h3 id="experiment-layer-2-results">Experiment Layer 2 Results</h3>
-<p><img src="https://user-images.githubusercontent.com/98208084/209859423-22bdf195-52f9-407c-92dd-6da2e2c245d7.png" alt="image"></p>
-<h3 id="conclusion">Conclusion</h3>
-<p><img src="https://user-images.githubusercontent.com/98208084/209859560-1a1232a9-bd95-4658-8825-48e6327a1b19.png" alt="image"></p>
-<h4 id="scalability-argument">Scalability Argument</h4>
-<p>To justify our overall final winning model, we need to briefly introduce the scalability argument. We take into account the advantage of one-class models like GMM over multi-class models where adding one new network flow would only require one new model to be trained, whilst the same scenario for multi-class models like random forest would require the entire model to be retrained over the new set of network flows.</p>
-<p>However, we believe that the trade-off between time and performance is worthwhile.
-Retraining the Random Forest would take ~10 minutes, and weighted average precision will be maintained at ~99%.
-Alternatively, retraining GMM will take ~1 minute but weighted average precision will only be at the level about 87%.</p>
-<p>Considering that the overall problem context is within the cybersecurity area, we should prioritise the weighted average precision metric over the slightly inferior training and testing times of Random Forest with respect to GMM.</p>
-<p>Thus, the winning model of our classification task is <em>*Random Forest</em>.</p>
-<h3 id="extending-to-anomaly-detection">Extending to Anomaly Detection</h3>
-<p>To integrate our ML solution into practice and extend its capabilities to anomaly detection we can simply observe if and when a particular flow&#39;s classification (or probability) deviates away from the actual flow in which the data is being collected from. </p>
-<h3 id="best-gmm-and-random-forest-confusion-matrix-and-classification-report-">Best GMM and Random Forest (confusion matrix and classification report)</h3>
-<p>Guassian Mixture Models:</p>
-<p><img src="https://user-images.githubusercontent.com/98208084/209861543-d8d78a92-0f39-4321-aeda-8619ea2595ca.png" alt="image">
-<img src="https://user-images.githubusercontent.com/98208084/209861574-974e5549-adfd-4dca-a875-8f411bd7dcf2.png" alt="image"></p>
-<p>Random Forest:</p>
-<p><img src="https://user-images.githubusercontent.com/98208084/209861212-4c290975-fe5f-4a5e-a715-d8a1b73872ba.png" alt="image">
-<img src="https://user-images.githubusercontent.com/98208084/209861374-df34f367-be68-4132-8f42-9b7735437889.png" alt="image"></p>
+              <span class="hljs-comment"># Finally, reset index and rename accordingly</span>
+              df = df.reset_index().drop('level_0',axis=<span class="hljs-number">1</span>).rename({'level_1':'FlowType'},axis=<span class="hljs-number">1</span>)
+          <span class="hljs-built_in">
+              return</span> df
+          </code></pre>
+          <h3 id="training">Training</h3>
+          <p>Once we have labelled data we can simply train the RF model using sklearn&#39;s implementation. </p>
+          <pre><code class="lang-python"><span class="hljs-attr">rf</span> = RandomForestClassifier(<span class="hljs-attr">n_estimators=n_trees,</span> <span class="hljs-attr">random_state=random_state).fit(X_train,y_train)</span>
+          </code></pre>
+          <h3 id="testing">Testing</h3>
+          <p>Unlike GMM, only one model needs to be trained to classify all classes, no conflict resolution is required either. We only need one line to predict the class of any segment of network flow.</p>
+          <pre><code class="lang-python"><span class="hljs-attr">y_pred</span> = model.predict(X_test)
+          </code></pre>
+          <h3 id="experiment-layer-1-results">Experiment Layer 1 Results</h3>
+          <p>Best experiment results for each one-class model for layer 1
+          <img src="https://user-images.githubusercontent.com/98208084/209847168-c7621fd3-1a31-4775-931c-2494d184905d.png" alt="image"></p>
+          <p>Best experiment results for each multi-class model for layer 1
+          <img src="https://user-images.githubusercontent.com/98208084/209847202-760f6db3-8842-40ef-af26-1c087d29bf66.png" alt="image"></p>
+          <h3 id="experiment-layer-2-results">Experiment Layer 2 Results</h3>
+          <p><img src="https://user-images.githubusercontent.com/98208084/209859423-22bdf195-52f9-407c-92dd-6da2e2c245d7.png" alt="image"></p>
+          <h3 id="conclusion">Conclusion</h3>
+          <p><img src="https://user-images.githubusercontent.com/98208084/209859560-1a1232a9-bd95-4658-8825-48e6327a1b19.png" alt="image"></p>
+          <h4 id="scalability-argument">Scalability Argument</h4>
+          <p>To justify our overall final winning model, we need to briefly introduce the scalability argument. We take into account the advantage of one-class models like GMM over multi-class models where adding one new network flow would only require one new model to be trained, whilst the same scenario for multi-class models like random forest would require the entire model to be retrained over the new set of network flows.</p>
+          <p>However, we believe that the trade-off between time and performance is worthwhile.
+          Retraining the Random Forest would take ~10 minutes, and weighted average precision will be maintained at ~99%.
+          Alternatively, retraining GMM will take ~1 minute but weighted average precision will only be at the level about 87%.</p>
+          <p>Considering that the overall problem context is within the cybersecurity area, we should prioritise the weighted average precision metric over the slightly inferior training and testing times of Random Forest with respect to GMM.</p>
+          <p>Thus, the winning model of our classification task is <em>*Random Forest</em>.</p>
+          <h3 id="extending-to-anomaly-detection">Extending to Anomaly Detection</h3>
+          <p>To integrate our ML solution into practice and extend its capabilities to anomaly detection we can simply observe if and when a particular flow&#39;s classification (or probability) deviates away from the actual flow in which the data is being collected from. </p>
+          <h3 id="best-gmm-and-random-forest-confusion-matrix-and-classification-report-">Best GMM and Random Forest (confusion matrix and classification report)</h3>
+          <p>Guassian Mixture Models:</p>
+          <p><img src="https://user-images.githubusercontent.com/98208084/209861543-d8d78a92-0f39-4321-aeda-8619ea2595ca.png" alt="image">
+          <img src="https://user-images.githubusercontent.com/98208084/209861574-974e5549-adfd-4dca-a875-8f411bd7dcf2.png" alt="image"></p>
+          <p>Random Forest:</p>
+          <p><img src="https://user-images.githubusercontent.com/98208084/209861212-4c290975-fe5f-4a5e-a715-d8a1b73872ba.png" alt="image">
+          <img src="https://user-images.githubusercontent.com/98208084/209861374-df34f367-be68-4132-8f42-9b7735437889.png" alt="image"></p>
 
           
         </section>
